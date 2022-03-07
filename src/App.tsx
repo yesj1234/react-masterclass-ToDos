@@ -1,10 +1,5 @@
-import Router from "./Router";
 import { createGlobalStyle } from "styled-components";
-import { ThemeProvider } from "styled-components";
-import { darktheme, lighttheme } from "./theme";
-import { useState } from "react";
-import { useRecoilValue } from "recoil";
-import { isDarkAtom } from "./routes/atom";
+import ToDoList from "./components/ToDoList";
 
 const GlobalStyle = createGlobalStyle`
 html, body, div, span, applet, object, iframe,
@@ -37,11 +32,13 @@ footer, header, hgroup, main, menu, nav, section {
     display: none;
 }
 * {
-  font-family: 'Bebas Neue', cursive;
+  font-family: 'Smooch Sans', sans-serif;
+  font-weight: 700;
+  font-size: 1.5em;
 }
 body {
   line-height: 1.2;
-  font-weight: 300;
+  font-weight: inherit;
   line-height: 1;
   box-sizing: border-box;
   background-color: ${(props) => props.theme.bgColor};
@@ -68,14 +65,10 @@ a {
 `;
 
 function App() {
-  const isDark = useRecoilValue(isDarkAtom);
-
   return (
     <>
-      <ThemeProvider theme={isDark ? darktheme : lighttheme}>
-        <GlobalStyle />
-        <Router />
-      </ThemeProvider>
+      <GlobalStyle />
+      <ToDoList />
     </>
   );
 }
