@@ -9,6 +9,7 @@ export interface IToDo {
   text: string;
   category: Categories;
   id: number;
+  onedit: boolean;
 }
 
 export const toDoState = atom<IToDo[]>({
@@ -27,5 +28,13 @@ export const filteredToDoListState = selector({
     const toDos = get(toDoState);
     const category = get(categoryState);
     return toDos.filter((toDo) => toDo.category === category);
+  },
+});
+
+export const editToDoState = selector({
+  key: "editToDoSelector",
+  get: ({ get }) => {
+    const toDos = get(toDoState);
+    return toDos.filter((toDo) => toDo.onedit === true);
   },
 });

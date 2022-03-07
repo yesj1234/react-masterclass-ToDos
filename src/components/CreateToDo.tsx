@@ -19,7 +19,7 @@ export function CreateToDo() {
   const onSubmit: SubmitHandler<IInputs> = (data) => {
     setToDos((oldToDos) => [
       ...oldToDos,
-      { text: data.toDo, id: Date.now(), category: curCategory },
+      { text: data.toDo, id: Date.now(), category: curCategory, onedit: false },
     ]);
     setValue("toDo", "");
   };
