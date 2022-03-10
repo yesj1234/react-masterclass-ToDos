@@ -1,6 +1,15 @@
-import { createGlobalStyle } from "styled-components";
-import ToDoList from "./components/ToDoList";
-
+import styled, { createGlobalStyle } from "styled-components";
+import {
+  DragDropContext,
+  Droppable,
+  Draggable,
+  DropResult,
+} from "react-beautiful-dnd";
+import { useRecoilState } from "recoil";
+import { toDoState } from "./atoms";
+import DraggableCard from "./components/DraggableCard";
+import Board from "./components/Board";
+import { useEffect } from "react";
 const GlobalStyle = createGlobalStyle`
 html, body, div, span, applet, object, iframe,
 h1, h2, h3, h4, h5, h6, p, blockquote, pre,
@@ -63,12 +72,90 @@ a {
   text-decoration: none;
 }
 `;
+const Wrapper = styled.div`
+  display: flex;
+  max-width: 700px;
+  width: 100%;
+  height: 100vh;
+  margin: 0 auto;
+  justify-content: center;
+  align-items: center;
+`;
+const Boards = styled.div`
+  display: grid;
+  width: 100%;
+  gap: 10px;
+  grid-template-columns: repeat(3, 1fr);
+`;
 
 function App() {
+  const [toDos, setToDos] = useRecoilState(toDoState);
+  const onDragEnd = ({ destination, source }: DropResult) => {
+    if (!destination) return;
+    if (destination?.droppableId === source.droppableId) {
+      setToDos((allBoards) => {
+        const boardCopy = [...allBoards[source.droppableId]];
+        const taskObj = boardCopy[source.index];
+        boardCopy.splice(source.index, 1);
+        boardCopy.splice(destination.index, 0, taskObj);
+        localStorage.setItem(
+          "toDos",
+          JSON.stringify({
+            ...allBoards,
+            [source.droppableId]: boardCopy,
+          })
+        );
+        return {
+          ...allBoards,
+          [source.droppableId]: boardCopy,
+        };
+      });
+    }
+    if (destination?.droppableId !== source.droppableId) {
+      setToDos((allBoards) => {
+        const sourceBoardCopy = [...allBoards[source.droppableId]];
+        const taskObj = sourceBoardCopy[source.index];
+        const destinationBoardCopy = [...allBoards[destination.droppableId]];
+        sourceBoardCopy.splice(source.index, 1);
+        destinationBoardCopy.splice(destination.index, 0, taskObj);
+        localStorage.setItem(
+          "toDos",
+          JSON.stringify({
+            ...allBoards,
+            [source.droppableId]: sourceBoardCopy,
+            [destination.droppableId]: destinationBoardCopy,
+          })
+        );
+        return {
+          ...allBoards,
+          [source.droppableId]: sourceBoardCopy,
+          [destination.droppableId]: destinationBoardCopy,
+        };
+      });
+    }
+  };
+  useEffect(() => {
+    if (localStorage.getItem("toDos")) {
+      const InitBoard = JSON.parse(localStorage.getItem("toDos") as string);
+      setToDos(InitBoard);
+    }
+  }, []);
   return (
     <>
       <GlobalStyle />
-      <ToDoList />
+      <DragDropContext onDragEnd={onDragEnd}>
+        <Wrapper>
+          <Boards>
+            {Object.keys(toDos).map((boardId) => (
+              <Board
+                boardId={boardId}
+                key={boardId}
+                toDos={toDos[boardId]}
+              ></Board>
+            ))}
+          </Boards>
+        </Wrapper>
+      </DragDropContext>
     </>
   );
 }

@@ -1,40 +1,19 @@
-import { atom, selector } from "recoil";
+import { atom } from "recoil";
 
-export enum Categories {
-  "To_Do" = "To_Do",
-  "Doing" = "Doing",
-  "Done" = "Done",
-}
 export interface IToDo {
-  text: string;
-  category: Categories;
   id: number;
-  onedit: boolean;
+  text: string;
 }
 
-export const toDoState = atom<IToDo[]>({
+interface ItoDoState {
+  [key: string]: IToDo[];
+}
+
+export const toDoState = atom<ItoDoState>({
   key: "toDo",
-  default: JSON.parse(localStorage.getItem("toDos") as any) || [],
-});
-
-export const categoryState = atom<Categories>({
-  key: "categoryState",
-  default: Categories.To_Do,
-});
-
-export const filteredToDoListState = selector({
-  key: "toDoSelector",
-  get: ({ get }) => {
-    const toDos = get(toDoState);
-    const category = get(categoryState);
-    return toDos.filter((toDo) => toDo.category === category);
-  },
-});
-
-export const editToDoState = selector({
-  key: "editToDoSelector",
-  get: ({ get }) => {
-    const toDos = get(toDoState);
-    return toDos.filter((toDo) => toDo.onedit === true);
+  default: {
+    To_Do: [],
+    Doing: [],
+    Done: [],
   },
 });
